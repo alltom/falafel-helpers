@@ -14,34 +14,38 @@ var eselector = require('esprima-selector');
 //   node.after(src, useFinally) - inserts src after everything in the block; if useFinally is true, the block is wrapped with try-block with src in the finally clause
 module.exports = function (node, options) {
 	options = (options || {});
-	var primitives = options.falafelMap ? falafelMapPrimitives : falafelPrimitives;
+	var sequence = options.falafelMap ? falafelMapSequence : falafelSequence;
 
 	var w = eselector.nodeTag(node);
 	if (w) {
-		if (w.name === "statement" || w.name === "declaration" || w.name === "program") {
-			node.before = primitives.before;
-			node.after = primitives.after;
-			node.wrap = primitives.wrap;
+		if (['statement', 'declaration', 'program', 'block'].indexOf(w.name) !== -1) {
+			node.before = before;
+			node.after = after;
+			node.wrap = wrap;
 		} else if (w.name === "expression") {
-			node.wrap = primitives.wrap;
-		} else if (w.name === "block") {
-			node.before = function (src) { node.wrap(primitives.sequence('{', src), '}') };
-			node.after = function (src, useFinally) {
-				if (useFinally) {
-					node.wrap('{ try {', primitives.sequence('} finally {', src, '} }'));
-				} else {
-					node.wrap('{', primitives.sequence(src, '}'));
-				}
-			};
-			node.wrap = primitives.wrap;
+			node.wrap = wrap;
 		} else if (['declarator', 'property'].indexOf(w.name) !== -1) {
 			// skip
 		} else {
-			throw new Error('unrecognized tag ' + w.name);
+			throw new Error('unrecognized node ' + w.name + ' (' + node.type + ')');
 		}
 	}
 
 	return node;
+
+	function before(src) {
+		this.wrap(sequence('{', src), '}');
+	}
+	function after(src, useFinally) {
+		if (useFinally) {
+			this.wrap('{ try {', sequence('} finally {', src, '} }'));
+		} else {
+			this.wrap('{', sequence(src, '}'));
+		}
+	}
+	function wrap(beforeSrc, afterSrc) {
+		this.update(sequence(beforeSrc, this.source(), afterSrc));
+	}
 }
 
 // returns a version of f where the node argument has been wrapped with the function above
@@ -51,16 +55,10 @@ module.exports.wrap = function (f, options) {
 	};
 };
 
-var falafelPrimitives = {
-	before: function (src) { this.update(src + this.source()) },
-	after: function (src) { this.update(this.source() + src) },
-	wrap: function (beforeSrc, afterSrc) { this.update(beforeSrc + this.source() + afterSrc) },
-	sequence: function () { return Array.prototype.join.call(arguments, '') },
-};
+function falafelSequence() {
+	return Array.prototype.join.call(arguments, '');
+}
 
-var falafelMapPrimitives = {
-	before: function (src) { this.update(src, this.sourceNodes()) },
-	after: function (src) { this.update(this.sourceNodes(), src) },
-	wrap: function (beforeSrc, afterSrc) { this.update(beforeSrc, this.sourceNodes(), afterSrc) },
-	sequence: function () { return Array.prototype.slice.call(arguments) },
-};
+function falafelMapSequence() {
+	return Array.prototype.slice.call(arguments);
+}
