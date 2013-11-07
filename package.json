@@ -1,5 +1,6 @@
 {
 	"name" : "falafel-helpers",
+	"version" : "0.0.1",
 	"author" : "Tom Lieber <tom@alltom.com>",
 	"description" : "decorate falafel nodes with some fancy helpers",
 	"repository" : {
