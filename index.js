@@ -14,7 +14,7 @@ var eselector = require('esprima-selector');
 //   node.after(src, useFinally) - inserts src after everything in the block; if useFinally is true, the block is wrapped with try-block with src in the finally clause
 module.exports = function (node, options) {
 	options = (options || {});
-	var sequence = options.falafelMap ? falafelMapSequence : falafelSequence;
+	var primitives = options.falafelMap ? falafelMapPrimitives : falafelPrimitives;
 
 	var w = eselector.nodeTag(node);
 	if (w) {
@@ -23,7 +23,7 @@ module.exports = function (node, options) {
 			node.after = after;
 			node.wrap = wrap;
 		} else if (w.name === "expression") {
-			node.wrap = wrap;
+			node.wrap = rawWrap;
 		} else if (['declarator', 'property'].indexOf(w.name) !== -1) {
 			// skip
 		} else {
@@ -34,17 +34,21 @@ module.exports = function (node, options) {
 	return node;
 
 	function before(src) {
-		this.wrap(sequence('{', src), '}');
+		rawWrap.call(this, primitives.sequence('{', src), '}');
 	}
 	function after(src, useFinally) {
 		if (useFinally) {
-			this.wrap('{ try {', sequence('} finally {', src, '} }'));
+			rawWrap.call(this, '{ try {', primitives.sequence('} finally {', src, '} }'));
 		} else {
-			this.wrap('{', sequence(src, '}'));
+			rawWrap.call(this, '{', primitives.sequence(src, '}'));
 		}
 	}
-	function wrap(beforeSrc, afterSrc) {
-		this.update(sequence(beforeSrc, this.source(), afterSrc));
+	function wrap(beforeSrc, afterSrc, useFinally) {
+		this.before(beforeSrc);
+		this.after(afterSrc, useFinally);
+	}
+	function rawWrap(beforeSrc, afterSrc) {
+		this.update(primitives.sequence(beforeSrc, primitives.source(this), afterSrc));
 	}
 }
 
@@ -55,10 +59,12 @@ module.exports.wrap = function (f, options) {
 	};
 };
 
-function falafelSequence() {
-	return Array.prototype.join.call(arguments, '');
-}
+var falafelPrimitives = {
+	sequence: function () { return Array.prototype.join.call(arguments, '') },
+	source: function (node) { return node.source() },
+};
 
-function falafelMapSequence() {
-	return Array.prototype.slice.call(arguments);
-}
+var falafelMapPrimitives = {
+	sequence: function () { return Array.prototype.slice.call(arguments) },
+	source: function (node) { return node.sourceNodes() },
+};
