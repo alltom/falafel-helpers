@@ -1,0 +1,13 @@
+{
+	"name" : "falafel-helpers",
+	"author" : "Tom Lieber <tom@alltom.com>",
+	"description" : "decorate falafel nodes with some fancy helpers",
+	"repository" : {
+		"type" : "git",
+		"url" : "https://github.com/alltom/falafel-helpers.git"
+	},
+	"dependencies" : {
+		"esprima-selector" : "*"
+	},
+	"license" : "MIT"
+}
