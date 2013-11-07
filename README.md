@@ -1,7 +1,7 @@
 falafel-helpers
 ===============
 
-Wraps your falafel callback function
+Wraps your falafel callback function, adding handy helpers:
 
 ```js
 var falafelHelpers = require('falafel-helpers');
