@@ -25,7 +25,7 @@ module.exports = function (node, options) {
 			node.wrap = wrap;
 		} else if (w.name === "expression") {
 			node.wrap = rawWrap;
-		} else if (['declarator', 'property'].indexOf(w.name) !== -1) {
+		} else if (['declarator', 'property', 'clause'].indexOf(w.name) !== -1) {
 			// skip
 		} else {
 			throw new Error('unrecognized node ' + w.name + ' (' + node.type + ')');
