@@ -18,6 +18,7 @@ module.exports = function (node, options) {
 
 	var w = eselector.nodeTag(node);
 	if (w) {
+		node.update = newUpdate(node);
 		if (['statement', 'declaration', 'program', 'block'].indexOf(w.name) !== -1) {
 			node.before = before;
 			node.after = after;
@@ -48,7 +49,14 @@ module.exports = function (node, options) {
 		this.after(afterSrc, useFinally);
 	}
 	function rawWrap(beforeSrc, afterSrc) {
-		this.update(primitives.sequence(beforeSrc, primitives.source(this), afterSrc));
+		this.update(beforeSrc, primitives.source(this), afterSrc);
+	}
+	function newUpdate(node) {
+		var oldUpdate = node.update;
+		return function () {
+			var seq = primitives.sequence.apply(this, arguments);
+			return oldUpdate.call(this, seq);
+		};
 	}
 }
 
