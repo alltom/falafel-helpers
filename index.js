@@ -37,9 +37,11 @@ module.exports = function (node, options) {
 	function before(src) {
 		rawWrap.call(this, primitives.sequence('{', src), '}');
 	}
-	function after(src, useFinally) {
-		if (useFinally) {
+	function after(src, catchSrc) {
+		if (catchSrc === true) {
 			rawWrap.call(this, '{ try {', primitives.sequence('} finally {', src, '} }'));
+		} else if (catchSrc) {
+			rawWrap.call(this, '{ try {', primitives.sequence('} catch (__e) {', catchSrc, '} finally {', src, '} }'));
 		} else {
 			rawWrap.call(this, '{', primitives.sequence(src, '}'));
 		}
