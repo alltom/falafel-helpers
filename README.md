@@ -6,7 +6,8 @@ Wraps your falafel callback function, adding handy helpers:
 ```js
 var falafelHelpers = require('falafel-helpers');
 
-var src = falafel(fs.readFileSync('test.js', 'utf8'), helpers.wrap(function (node) {
+var srcBefore = fs.readFileSync('test.js', 'utf8');
+var srcAfter = falafel(srcBefore, helpers.wrap(function (node) {
 	if (/Expression$/.test(node.type)) {
 		node.wrap('debug(', ')');
 	} else if (node.type === 'BlockStatement') {
@@ -21,7 +22,8 @@ Also works with `falafel-map`:
 ```js
 var falafelHelpers = require('falafel-helpers');
 
-var src = falafel(fs.readFileSync('test.js', 'utf8'), helpers.wrap(function (node) {
+var srcBefore = fs.readFileSync('test.js', 'utf8');
+var srcAfter = falafel(srcBefore, helpers.wrap(function (node) {
 	if (/Expression$/.test(node.type)) {
 		node.wrap('debug(', ')');
 	}
