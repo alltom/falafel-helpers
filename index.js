@@ -24,7 +24,7 @@ module.exports = function (node, options) {
 			node.after = after;
 			node.wrap = wrap;
 		} else if (w.name === "expression") {
-			node.wrap = rawWrap;
+			node.wrap = parensWrap;
 		} else if (['switch-case'].indexOf(w.name) !== -1) {
 			// TODO
 		} else if (['declarator', 'property', 'clause'].indexOf(w.name) !== -1) {
@@ -51,6 +51,9 @@ module.exports = function (node, options) {
 	function wrap(beforeSrc, afterSrc, useFinally) {
 		this.before(beforeSrc);
 		this.after(afterSrc, useFinally);
+	}
+	function parensWrap(beforeSrc, afterSrc) {
+		this.update('(', beforeSrc, primitives.source(this), afterSrc, ')');
 	}
 	function rawWrap(beforeSrc, afterSrc) {
 		this.update(beforeSrc, primitives.source(this), afterSrc);
