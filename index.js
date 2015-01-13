@@ -25,6 +25,8 @@ module.exports = function (node, options) {
 			node.wrap = wrap;
 		} else if (w.name === "expression") {
 			node.wrap = rawWrap;
+		} else if (['switch-case'].indexOf(w.name) !== -1) {
+			// TODO
 		} else if (['declarator', 'property', 'clause'].indexOf(w.name) !== -1) {
 			// skip
 		} else {
