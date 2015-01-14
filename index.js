@@ -22,7 +22,7 @@ module.exports = function (node, options) {
 		if (['statement', 'declaration', 'program', 'block'].indexOf(w.name) !== -1) {
 			node.before = before;
 			node.after = after;
-			node.wrap = wrap;
+			node.wrap = beforeAfterWrap;
 		} else if (w.name === "expression") {
 			node.wrap = parensWrap;
 		} else if (['switch-case'].indexOf(w.name) !== -1) {
@@ -48,7 +48,7 @@ module.exports = function (node, options) {
 			rawWrap.call(this, '{', primitives.sequence(src, '}'));
 		}
 	}
-	function wrap(beforeSrc, afterSrc, useFinally) {
+	function beforeAfterWrap(beforeSrc, afterSrc, useFinally) {
 		this.before(beforeSrc);
 		this.after(afterSrc, useFinally);
 	}
